@@ -12,7 +12,7 @@ export interface Task {
   title: string
   description?: string
   status: "PENDING" | "IN_PROGRESS" | "COMPLETED"
-  priority: "low" | "medium" | "high"
+  priority: "LOW" | "MEDIUM" | "HIGH"
   createdAt: Date
   updatedAt: Date
   userId: string
@@ -36,7 +36,7 @@ export const mockTasks: Task[] = [
     title: "Revisar correos pendientes",
     description: "Revisar y responder correos importantes del día",
     status: "PENDING",
-    priority: "high",
+    priority: "HIGH",
     createdAt: new Date("2024-01-15"),
     updatedAt: new Date("2024-01-15"),
     userId: "1",
@@ -46,7 +46,7 @@ export const mockTasks: Task[] = [
     title: "Preparar presentación",
     description: "Crear slides para la reunión del viernes",
     status: "COMPLETED",
-    priority: "medium",
+    priority: "MEDIUM",
     createdAt: new Date("2024-01-14"),
     updatedAt: new Date("2024-01-15"),
     userId: "1",
@@ -56,7 +56,7 @@ export const mockTasks: Task[] = [
     title: "Llamar al cliente",
     description: "Confirmar detalles del proyecto",
     status: "PENDING",
-    priority: "high",
+    priority: "HIGH",
     createdAt: new Date("2024-01-13"),
     updatedAt: new Date("2024-01-13"),
     userId: "1",
@@ -65,7 +65,7 @@ export const mockTasks: Task[] = [
     id: "4",
     title: "Actualizar documentación",
     status: "PENDING",
-    priority: "low",
+    priority: "LOW",
     createdAt: new Date("2024-01-12"),
     updatedAt: new Date("2024-01-12"),
     userId: "1",
@@ -75,7 +75,7 @@ export const mockTasks: Task[] = [
     title: "Revisar código del equipo",
     description: "Code review de los PRs pendientes",
     status: "COMPLETED",
-    priority: "medium",
+    priority: "MEDIUM",
     createdAt: new Date("2024-01-11"),
     updatedAt: new Date("2024-01-14"),
     userId: "1",

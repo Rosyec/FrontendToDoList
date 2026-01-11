@@ -58,7 +58,7 @@ export function DashboardContent() {
     completed: tasks.filter((t) => t.status === "COMPLETED").length,
     pending: tasks.filter((t) => t.status !== "COMPLETED").length,
     highPriority: tasks.filter(
-      (t) => t.priority === "high" && t.status !== "COMPLETED"
+      (t) => t.priority === "HIGH" && t.status !== "COMPLETED"
     ).length,
   };
 

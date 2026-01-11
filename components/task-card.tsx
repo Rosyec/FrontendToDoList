@@ -28,15 +28,15 @@ interface TaskCardProps {
 }
 
 const priorityColors = {
-  low: "bg-blue-500/10 text-blue-600 border-blue-200",
-  medium: "bg-amber-500/10 text-amber-600 border-amber-200",
-  high: "bg-red-500/10 text-red-600 border-red-200",
+  LOW: "bg-blue-500/10 text-blue-600 border-blue-200",
+  MEDIUM: "bg-amber-500/10 text-amber-600 border-amber-200",
+  HIGH: "bg-red-500/10 text-red-600 border-red-200",
 };
 
 const priorityLabels = {
-  low: "Baja",
-  medium: "Media",
-  high: "Alta",
+  LOW: "Baja",
+  MEDIUM: "Media",
+  HIGH: "Alta",
 };
 
 export function TaskCard({

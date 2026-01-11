@@ -36,7 +36,7 @@ export function TaskDialog({ open, onClose, task }: TaskDialogProps) {
   const { addTask, updateTask } = useTasks();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [priority, setPriority] = useState<"low" | "medium" | "high">("medium");
+  const [priority, setPriority] = useState<"LOW" | "MEDIUM" | "HIGH">("MEDIUM");
 
   useEffect(() => {
     if (task) {
@@ -46,7 +46,7 @@ export function TaskDialog({ open, onClose, task }: TaskDialogProps) {
     } else {
       setTitle("");
       setDescription("");
-      setPriority("medium");
+      setPriority("MEDIUM");
     }
   }, [task, open]);
 
@@ -118,19 +118,19 @@ export function TaskDialog({ open, onClose, task }: TaskDialogProps) {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="low">
+                <SelectItem value="LOW">
                   <div className="flex items-center gap-2">
                     <Flag className="w-4 h-4 text-blue-500" />
                     Baja
                   </div>
                 </SelectItem>
-                <SelectItem value="medium">
+                <SelectItem value="MEDIUM">
                   <div className="flex items-center gap-2">
                     <Flag className="w-4 h-4 text-amber-500" />
                     Media
                   </div>
                 </SelectItem>
-                <SelectItem value="high">
+                <SelectItem value="HIGH">
                   <div className="flex items-center gap-2">
                     <Flag className="w-4 h-4 text-red-500" />
                     Alta
