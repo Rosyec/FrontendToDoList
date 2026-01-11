@@ -4,7 +4,7 @@ import type React from "react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/lib/store/auth-store";
-import { TasksProvider } from "@/lib/tasks-context";
+// import { TasksProvider } from "@/lib/tasks-context";
 
 export default function DashboardLayout({
   children,
@@ -34,5 +34,5 @@ export default function DashboardLayout({
     return null;
   }
 
-  return <TasksProvider>{children}</TasksProvider>;
+  return children;
 }
