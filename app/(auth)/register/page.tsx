@@ -58,7 +58,8 @@ export default function RegisterPage() {
 
     try {
       const result = await authApi.register(name, email, password);
-      setAuth(result.user, result.accessToken);
+      console.log("Register response:", result);
+      setAuth(result.user, result.access_token);
       router.push("/dashboard");
     } catch (err: any) {
       setError(err.response?.data?.message || "Error al registrarse");

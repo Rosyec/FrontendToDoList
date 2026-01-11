@@ -44,7 +44,7 @@ export default function LoginPage() {
 
     try {
       const result = await authApi.login(email, password);
-      setAuth(result.user, result.accessToken);
+      setAuth(result.user, result.access_token);
       router.push("/dashboard");
     } catch (err: any) {
       setError(err.response?.data?.message || "Error al iniciar sesión");

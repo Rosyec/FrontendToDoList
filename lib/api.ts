@@ -3,12 +3,12 @@ import type { Task, User } from "./mock-data"
 
 // Auth Types
 export interface LoginResponse {
-    accessToken: string
+    access_token: string
     user: User
 }
 
 export interface RegisterResponse {
-    accessToken: string
+    access_token: string
     user: User
 }
 
