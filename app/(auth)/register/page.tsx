@@ -1,54 +1,71 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import Link from "next/link"
-import { Eye, EyeOff, Mail, Lock, User, CheckCircle2, Loader2, ArrowLeft } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { useAuth } from "@/lib/auth-context"
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import {
+  Eye,
+  EyeOff,
+  Mail,
+  Lock,
+  User,
+  CheckCircle2,
+  Loader2,
+  ArrowLeft,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { authApi } from "@/lib/api";
+import { useAuthStore } from "@/lib/store/auth-store";
 
 export default function RegisterPage() {
-  const router = useRouter()
-  const { register } = useAuth()
-  const [name, setName] = useState("")
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [confirmPassword, setConfirmPassword] = useState("")
-  const [showPassword, setShowPassword] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState("")
+  const router = useRouter();
+  const { login: setAuth } = useAuthStore();
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError("")
+    e.preventDefault();
+    setError("");
 
     if (password !== confirmPassword) {
-      setError("Las contraseñas no coinciden")
-      return
+      setError("Las contraseñas no coinciden");
+      return;
     }
 
     if (password.length < 6) {
-      setError("La contraseña debe tener al menos 6 caracteres")
-      return
+      setError("La contraseña debe tener al menos 6 caracteres");
+      return;
     }
 
-    setIsLoading(true)
+    setIsLoading(true);
 
-    const result = await register(name, email, password)
-
-    if (result.success) {
-      router.push("/dashboard")
-    } else {
-      setError(result.error || "Error al registrarse")
+    try {
+      const result = await authApi.register(name, email, password);
+      setAuth(result.user, result.accessToken);
+      router.push("/dashboard");
+    } catch (err: any) {
+      setError(err.response?.data?.message || "Error al registrarse");
     }
 
-    setIsLoading(false)
-  }
+    setIsLoading(false);
+  };
 
   return (
     <div className="min-h-screen bg-background flex">
@@ -66,7 +83,8 @@ export default function RegisterPage() {
             Comienza tu viaje hacia la productividad
           </h1>
           <p className="text-lg text-muted-foreground max-w-md">
-            Únete a miles de usuarios que ya organizan sus tareas de manera efectiva con TaskFlow.
+            Únete a miles de usuarios que ya organizan sus tareas de manera
+            efectiva con TaskFlow.
           </p>
 
           <div className="mt-12 space-y-4">
@@ -74,19 +92,25 @@ export default function RegisterPage() {
               <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
                 <CheckCircle2 className="w-4 h-4 text-primary" />
               </div>
-              <span className="text-sm text-muted-foreground">Gestión intuitiva de tareas</span>
+              <span className="text-sm text-muted-foreground">
+                Gestión intuitiva de tareas
+              </span>
             </div>
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
                 <CheckCircle2 className="w-4 h-4 text-primary" />
               </div>
-              <span className="text-sm text-muted-foreground">Priorización inteligente</span>
+              <span className="text-sm text-muted-foreground">
+                Priorización inteligente
+              </span>
             </div>
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
                 <CheckCircle2 className="w-4 h-4 text-primary" />
               </div>
-              <span className="text-sm text-muted-foreground">100% gratuito para comenzar</span>
+              <span className="text-sm text-muted-foreground">
+                100% gratuito para comenzar
+              </span>
             </div>
           </div>
         </div>
@@ -115,11 +139,17 @@ export default function RegisterPage() {
                 <span className="font-semibold text-foreground">TaskFlow</span>
               </div>
               <CardTitle className="text-2xl font-bold">Crear Cuenta</CardTitle>
-              <CardDescription>Completa tus datos para comenzar a usar TaskFlow</CardDescription>
+              <CardDescription>
+                Completa tus datos para comenzar a usar TaskFlow
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-4">
-                {error && <div className="p-3 rounded-lg bg-destructive/10 text-destructive text-sm">{error}</div>}
+                {error && (
+                  <div className="p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
+                    {error}
+                  </div>
+                )}
 
                 <div className="space-y-2">
                   <Label htmlFor="name">Nombre completo</Label>
@@ -171,7 +201,11 @@ export default function RegisterPage() {
                       onClick={() => setShowPassword(!showPassword)}
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                     >
-                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      {showPassword ? (
+                        <EyeOff className="w-4 h-4" />
+                      ) : (
+                        <Eye className="w-4 h-4" />
+                      )}
                     </button>
                   </div>
                 </div>
@@ -207,7 +241,10 @@ export default function RegisterPage() {
             <CardFooter className="flex flex-col space-y-4">
               <div className="text-center text-sm text-muted-foreground">
                 ¿Ya tienes cuenta?{" "}
-                <Link href="/login" className="text-primary hover:underline font-medium">
+                <Link
+                  href="/login"
+                  className="text-primary hover:underline font-medium"
+                >
                   Inicia sesión
                 </Link>
               </div>
@@ -216,5 +253,5 @@ export default function RegisterPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

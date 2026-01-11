@@ -1,90 +1,95 @@
-"use client"
+"use client";
 
-import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
-import { mockTasks, type Task } from "./mock-data"
-import { useAuth } from "./auth-context"
+import { createContext, useContext, type ReactNode } from "react";
+import { type Task } from "./mock-data";
+import { useAuthStore } from "@/lib/store/auth-store";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { tasksApi, type CreateTaskDto, type UpdateTaskDto } from "./api";
 
 interface TasksContextType {
-  tasks: Task[]
-  isLoading: boolean
-  addTask: (task: Omit<Task, "id" | "createdAt" | "updatedAt" | "userId">) => void
-  updateTask: (id: string, updates: Partial<Task>) => void
-  deleteTask: (id: string) => void
-  toggleComplete: (id: string) => void
+  tasks: Task[];
+  isLoading: boolean;
+  addTask: (task: CreateTaskDto) => void;
+  updateTask: (id: string, updates: UpdateTaskDto) => void;
+  deleteTask: (id: string) => void;
+  toggleComplete: (id: string) => void;
 }
 
-const TasksContext = createContext<TasksContextType | undefined>(undefined)
+const TasksContext = createContext<TasksContextType | undefined>(undefined);
 
 export function TasksProvider({ children }: { children: ReactNode }) {
-  const { user } = useAuth()
-  const [tasks, setTasks] = useState<Task[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+  const { user, isAuthenticated } = useAuthStore();
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    if (user) {
-      // Simulate loading
-      setIsLoading(true)
-      setTimeout(() => {
-        setTasks(mockTasks.filter((t) => t.userId === user.id))
-        setIsLoading(false)
-      }, 500)
-    } else {
-      setTasks([])
-      setIsLoading(false)
-    }
-  }, [user])
+  const { data: tasks = [], isLoading } = useQuery({
+    queryKey: ["tasks"],
+    queryFn: tasksApi.getAll,
+    enabled: isAuthenticated, // Only fetch calls if user is logged in
+  });
 
-  const addTask = (taskData: Omit<Task, "id" | "createdAt" | "updatedAt" | "userId">) => {
-    if (!user) return
+  const createTaskMutation = useMutation({
+    mutationFn: tasksApi.create,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+    },
+  });
 
-    const newTask: Task = {
-      ...taskData,
-      id: String(Date.now()),
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      userId: user.id,
-    }
+  const updateTaskMutation = useMutation({
+    mutationFn: ({ id, updates }: { id: string; updates: UpdateTaskDto }) =>
+      tasksApi.update(id, updates),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+    },
+  });
 
-    setTasks((prev) => [newTask, ...prev])
-    mockTasks.push(newTask)
-  }
+  const deleteTaskMutation = useMutation({
+    mutationFn: tasksApi.delete,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+    },
+  });
 
-  const updateTask = (id: string, updates: Partial<Task>) => {
-    setTasks((prev) => prev.map((task) => (task.id === id ? { ...task, ...updates, updatedAt: new Date() } : task)))
+  const addTask = (taskData: CreateTaskDto) => {
+    if (!user) return;
+    createTaskMutation.mutate(taskData);
+  };
 
-    const taskIndex = mockTasks.findIndex((t) => t.id === id)
-    if (taskIndex !== -1) {
-      mockTasks[taskIndex] = { ...mockTasks[taskIndex], ...updates, updatedAt: new Date() }
-    }
-  }
+  const updateTask = (id: string, updates: UpdateTaskDto) => {
+    updateTaskMutation.mutate({ id, updates });
+  };
 
   const deleteTask = (id: string) => {
-    setTasks((prev) => prev.filter((task) => task.id !== id))
-
-    const taskIndex = mockTasks.findIndex((t) => t.id === id)
-    if (taskIndex !== -1) {
-      mockTasks.splice(taskIndex, 1)
-    }
-  }
+    deleteTaskMutation.mutate(id);
+  };
 
   const toggleComplete = (id: string) => {
-    const task = tasks.find((t) => t.id === id)
+    const task = tasks.find((t) => t.id === id);
     if (task) {
-      updateTask(id, { completed: !task.completed })
+      const newStatus = task.status === "COMPLETED" ? "PENDING" : "COMPLETED";
+      updateTask(id, { status: newStatus });
     }
-  }
+  };
 
   return (
-    <TasksContext.Provider value={{ tasks, isLoading, addTask, updateTask, deleteTask, toggleComplete }}>
+    <TasksContext.Provider
+      value={{
+        tasks,
+        isLoading,
+        addTask,
+        updateTask,
+        deleteTask,
+        toggleComplete,
+      }}
+    >
       {children}
     </TasksContext.Provider>
-  )
+  );
 }
 
 export function useTasks() {
-  const context = useContext(TasksContext)
+  const context = useContext(TasksContext);
   if (context === undefined) {
-    throw new Error("useTasks must be used within a TasksProvider")
+    throw new Error("useTasks must be used within a TasksProvider");
   }
-  return context
+  return context;
 }

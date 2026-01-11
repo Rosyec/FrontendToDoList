@@ -1,13 +1,13 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState, useEffect } from "react"
-import { Flag } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
+import { useState, useEffect } from "react";
+import { Flag } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
   DialogContent,
@@ -15,57 +15,63 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { useTasks } from "@/lib/tasks-context"
-import type { Task } from "@/lib/mock-data"
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useTasks } from "@/lib/tasks-context";
+import type { Task } from "@/lib/mock-data";
 
 interface TaskDialogProps {
-  open: boolean
-  onClose: () => void
-  task: Task | null
+  open: boolean;
+  onClose: () => void;
+  task: Task | null;
 }
 
 export function TaskDialog({ open, onClose, task }: TaskDialogProps) {
-  const { addTask, updateTask } = useTasks()
-  const [title, setTitle] = useState("")
-  const [description, setDescription] = useState("")
-  const [priority, setPriority] = useState<"low" | "medium" | "high">("medium")
+  const { addTask, updateTask } = useTasks();
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [priority, setPriority] = useState<"low" | "medium" | "high">("medium");
 
   useEffect(() => {
     if (task) {
-      setTitle(task.title)
-      setDescription(task.description || "")
-      setPriority(task.priority)
+      setTitle(task.title);
+      setDescription(task.description || "");
+      setPriority(task.priority);
     } else {
-      setTitle("")
-      setDescription("")
-      setPriority("medium")
+      setTitle("");
+      setDescription("");
+      setPriority("medium");
     }
-  }, [task, open])
+  }, [task, open]);
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
-    if (!title.trim()) return
+    if (!title.trim()) return;
 
     if (task) {
       updateTask(task.id, {
         title: title.trim(),
         description: description.trim() || undefined,
         priority,
-      })
+      });
     } else {
       addTask({
         title: title.trim(),
         description: description.trim() || undefined,
         priority,
-        completed: false,
-      })
+        status: "PENDING",
+      });
     }
 
-    onClose()
-  }
+    onClose();
+  };
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -73,7 +79,9 @@ export function TaskDialog({ open, onClose, task }: TaskDialogProps) {
         <DialogHeader>
           <DialogTitle>{task ? "Editar Tarea" : "Nueva Tarea"}</DialogTitle>
           <DialogDescription>
-            {task ? "Modifica los detalles de tu tarea" : "Agrega una nueva tarea a tu lista"}
+            {task
+              ? "Modifica los detalles de tu tarea"
+              : "Agrega una nueva tarea a tu lista"}
           </DialogDescription>
         </DialogHeader>
 
@@ -102,7 +110,10 @@ export function TaskDialog({ open, onClose, task }: TaskDialogProps) {
 
           <div className="space-y-2">
             <Label>Prioridad</Label>
-            <Select value={priority} onValueChange={(v) => setPriority(v as typeof priority)}>
+            <Select
+              value={priority}
+              onValueChange={(v) => setPriority(v as typeof priority)}
+            >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -133,10 +144,12 @@ export function TaskDialog({ open, onClose, task }: TaskDialogProps) {
             <Button type="button" variant="outline" onClick={onClose}>
               Cancelar
             </Button>
-            <Button type="submit">{task ? "Guardar Cambios" : "Crear Tarea"}</Button>
+            <Button type="submit">
+              {task ? "Guardar Cambios" : "Crear Tarea"}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

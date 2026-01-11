@@ -1,49 +1,63 @@
-"use client"
+"use client";
 
-import { CheckCircle2, Circle, MoreHorizontal, Edit3, Trash2, Flag, Clock } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import {
+  CheckCircle2,
+  Circle,
+  MoreHorizontal,
+  Edit3,
+  Trash2,
+  Flag,
+  Clock,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import type { Task } from "@/lib/mock-data"
+} from "@/components/ui/dropdown-menu";
+import type { Task } from "@/lib/mock-data";
 
 interface TaskCardProps {
-  task: Task
-  view: "grid" | "list"
-  onToggle: () => void
-  onEdit: () => void
-  onDelete: () => void
+  task: Task;
+  view: "grid" | "list";
+  onToggle: () => void;
+  onEdit: () => void;
+  onDelete: () => void;
 }
 
 const priorityColors = {
   low: "bg-blue-500/10 text-blue-600 border-blue-200",
   medium: "bg-amber-500/10 text-amber-600 border-amber-200",
   high: "bg-red-500/10 text-red-600 border-red-200",
-}
+};
 
 const priorityLabels = {
   low: "Baja",
   medium: "Media",
   high: "Alta",
-}
+};
 
-export function TaskCard({ task, view, onToggle, onEdit, onDelete }: TaskCardProps) {
+export function TaskCard({
+  task,
+  view,
+  onToggle,
+  onEdit,
+  onDelete,
+}: TaskCardProps) {
   const formatDate = (date: Date) => {
     return new Intl.DateTimeFormat("es-ES", {
       day: "numeric",
       month: "short",
-    }).format(new Date(date))
-  }
+    }).format(new Date(date));
+  };
 
   if (view === "grid") {
     return (
       <div
         className={`p-4 rounded-xl bg-card border border-border/50 hover:border-primary/30 transition-all ${
-          task.completed ? "opacity-60" : ""
+          task.status === "COMPLETED" ? "opacity-60" : ""
         }`}
       >
         <div className="flex items-start justify-between mb-3">
@@ -51,7 +65,11 @@ export function TaskCard({ task, view, onToggle, onEdit, onDelete }: TaskCardPro
             onClick={onToggle}
             className="flex-shrink-0 mt-0.5 text-muted-foreground hover:text-primary transition-colors"
           >
-            {task.completed ? <CheckCircle2 className="w-5 h-5 text-primary" /> : <Circle className="w-5 h-5" />}
+            {task.status === "COMPLETED" ? (
+              <CheckCircle2 className="w-5 h-5 text-primary" />
+            ) : (
+              <Circle className="w-5 h-5" />
+            )}
           </button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -74,12 +92,20 @@ export function TaskCard({ task, view, onToggle, onEdit, onDelete }: TaskCardPro
         </div>
 
         <h3
-          className={`font-medium text-foreground mb-2 ${task.completed ? "line-through text-muted-foreground" : ""}`}
+          className={`font-medium text-foreground mb-2 ${
+            task.status === "COMPLETED"
+              ? "line-through text-muted-foreground"
+              : ""
+          }`}
         >
           {task.title}
         </h3>
 
-        {task.description && <p className="text-sm text-muted-foreground mb-3 line-clamp-2">{task.description}</p>}
+        {task.description && (
+          <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
+            {task.description}
+          </p>
+        )}
 
         <div className="flex items-center justify-between">
           <span
@@ -96,24 +122,33 @@ export function TaskCard({ task, view, onToggle, onEdit, onDelete }: TaskCardPro
           </span>
         </div>
       </div>
-    )
+    );
   }
 
   return (
     <div
       className={`flex items-center gap-4 p-4 rounded-xl bg-card border border-border/50 hover:border-primary/30 transition-all ${
-        task.completed ? "opacity-60" : ""
+        task.status === "COMPLETED" ? "opacity-60" : ""
       }`}
     >
-      <button onClick={onToggle} className="flex-shrink-0 text-muted-foreground hover:text-primary transition-colors">
-        {task.completed ? <CheckCircle2 className="w-5 h-5 text-primary" /> : <Circle className="w-5 h-5" />}
+      <button
+        onClick={onToggle}
+        className="flex-shrink-0 text-muted-foreground hover:text-primary transition-colors"
+      >
+        {task.status === "COMPLETED" ? (
+          <CheckCircle2 className="w-5 h-5 text-primary" />
+        ) : (
+          <Circle className="w-5 h-5" />
+        )}
       </button>
 
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-1">
           <h3
             className={`font-medium text-foreground truncate ${
-              task.completed ? "line-through text-muted-foreground" : ""
+              task.status === "COMPLETED"
+                ? "line-through text-muted-foreground"
+                : ""
             }`}
           >
             {task.title}
@@ -127,7 +162,11 @@ export function TaskCard({ task, view, onToggle, onEdit, onDelete }: TaskCardPro
             {priorityLabels[task.priority]}
           </span>
         </div>
-        {task.description && <p className="text-sm text-muted-foreground truncate">{task.description}</p>}
+        {task.description && (
+          <p className="text-sm text-muted-foreground truncate">
+            {task.description}
+          </p>
+        )}
       </div>
 
       <div className="flex items-center gap-2">
@@ -155,5 +194,5 @@ export function TaskCard({ task, view, onToggle, onEdit, onDelete }: TaskCardPro
         </DropdownMenu>
       </div>
     </div>
-  )
+  );
 }

@@ -1,41 +1,57 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import Link from "next/link"
-import { Eye, EyeOff, Mail, Lock, CheckCircle2, Loader2, ArrowLeft } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { useAuth } from "@/lib/auth-context"
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import {
+  Eye,
+  EyeOff,
+  Mail,
+  Lock,
+  CheckCircle2,
+  Loader2,
+  ArrowLeft,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { authApi } from "@/lib/api";
+import { useAuthStore } from "@/lib/store/auth-store";
 
 export default function LoginPage() {
-  const router = useRouter()
-  const { login } = useAuth()
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [showPassword, setShowPassword] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState("")
+  const router = useRouter();
+  const { login: setAuth } = useAuthStore();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError("")
-    setIsLoading(true)
+    e.preventDefault();
+    setError("");
+    setIsLoading(true);
 
-    const result = await login(email, password)
-
-    if (result.success) {
-      router.push("/dashboard")
-    } else {
-      setError(result.error || "Error al iniciar sesión")
+    try {
+      const result = await authApi.login(email, password);
+      setAuth(result.user, result.accessToken);
+      router.push("/dashboard");
+    } catch (err: any) {
+      setError(err.response?.data?.message || "Error al iniciar sesión");
     }
 
-    setIsLoading(false)
-  }
+    setIsLoading(false);
+  };
 
   return (
     <div className="min-h-screen bg-background flex">
@@ -49,9 +65,12 @@ export default function LoginPage() {
             </div>
             <span className="text-2xl font-bold text-foreground">TaskFlow</span>
           </div>
-          <h1 className="text-4xl xl:text-5xl font-bold text-foreground mb-6 leading-tight">Bienvenido de nuevo</h1>
+          <h1 className="text-4xl xl:text-5xl font-bold text-foreground mb-6 leading-tight">
+            Bienvenido de nuevo
+          </h1>
           <p className="text-lg text-muted-foreground max-w-md">
-            Accede a tu cuenta y continúa gestionando tus tareas de manera eficiente.
+            Accede a tu cuenta y continúa gestionando tus tareas de manera
+            eficiente.
           </p>
           <div className="mt-12 flex items-center gap-4">
             <div className="flex -space-x-2">
@@ -65,7 +84,8 @@ export default function LoginPage() {
               ))}
             </div>
             <p className="text-sm text-muted-foreground">
-              <span className="font-semibold text-foreground">+2,500</span> usuarios activos
+              <span className="font-semibold text-foreground">+2,500</span>{" "}
+              usuarios activos
             </p>
           </div>
         </div>
@@ -93,12 +113,20 @@ export default function LoginPage() {
                 </div>
                 <span className="font-semibold text-foreground">TaskFlow</span>
               </div>
-              <CardTitle className="text-2xl font-bold">Iniciar Sesión</CardTitle>
-              <CardDescription>Ingresa tus credenciales para acceder a tu cuenta</CardDescription>
+              <CardTitle className="text-2xl font-bold">
+                Iniciar Sesión
+              </CardTitle>
+              <CardDescription>
+                Ingresa tus credenciales para acceder a tu cuenta
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-4">
-                {error && <div className="p-3 rounded-lg bg-destructive/10 text-destructive text-sm">{error}</div>}
+                {error && (
+                  <div className="p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
+                    {error}
+                  </div>
+                )}
 
                 <div className="space-y-2">
                   <Label htmlFor="email">Correo electrónico</Label>
@@ -134,7 +162,11 @@ export default function LoginPage() {
                       onClick={() => setShowPassword(!showPassword)}
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                     >
-                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      {showPassword ? (
+                        <EyeOff className="w-4 h-4" />
+                      ) : (
+                        <Eye className="w-4 h-4" />
+                      )}
                     </button>
                   </div>
                 </div>
@@ -152,7 +184,9 @@ export default function LoginPage() {
               </form>
 
               <div className="mt-6 p-4 rounded-lg bg-muted/50 border border-border/50">
-                <p className="text-xs text-muted-foreground mb-2">Credenciales de prueba:</p>
+                <p className="text-xs text-muted-foreground mb-2">
+                  Credenciales de prueba:
+                </p>
                 <p className="text-sm font-mono">demo@taskflow.com</p>
                 <p className="text-sm font-mono">demo123</p>
               </div>
@@ -160,7 +194,10 @@ export default function LoginPage() {
             <CardFooter className="flex flex-col space-y-4">
               <div className="text-center text-sm text-muted-foreground">
                 ¿No tienes cuenta?{" "}
-                <Link href="/register" className="text-primary hover:underline font-medium">
+                <Link
+                  href="/register"
+                  className="text-primary hover:underline font-medium"
+                >
                   Regístrate aquí
                 </Link>
               </div>
@@ -169,5 +206,5 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

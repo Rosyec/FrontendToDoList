@@ -1,56 +1,76 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { CheckCircle2, Circle, Plus, LogOut, Search, Filter, LayoutGrid, List, Flag } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { useAuth } from "@/lib/auth-context"
-import { useTasks } from "@/lib/tasks-context"
-import { TaskDialog } from "@/components/task-dialog"
-import { TaskCard } from "@/components/task-card"
-import type { Task } from "@/lib/mock-data"
+import { useState } from "react";
+import {
+  CheckCircle2,
+  Circle,
+  Plus,
+  LogOut,
+  Search,
+  Filter,
+  LayoutGrid,
+  List,
+  Flag,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useAuthStore } from "@/lib/store/auth-store";
+import { useTasks } from "@/lib/tasks-context";
+import { TaskDialog } from "@/components/task-dialog";
+import { TaskCard } from "@/components/task-card";
+import type { Task } from "@/lib/mock-data";
 
-type FilterType = "all" | "pending" | "completed"
-type ViewType = "grid" | "list"
+type FilterType = "all" | "pending" | "completed";
+type ViewType = "grid" | "list";
 
 export function DashboardContent() {
-  const { user, logout } = useAuth()
-  const { tasks, isLoading, toggleComplete, deleteTask } = useTasks()
-  const [searchQuery, setSearchQuery] = useState("")
-  const [filter, setFilter] = useState<FilterType>("all")
-  const [view, setView] = useState<ViewType>("list")
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [editingTask, setEditingTask] = useState<Task | null>(null)
+  const { user, logout } = useAuthStore();
+  const { tasks, isLoading, toggleComplete, deleteTask } = useTasks();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filter, setFilter] = useState<FilterType>("all");
+  const [view, setView] = useState<ViewType>("list");
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
 
   const filteredTasks = tasks.filter((task) => {
     const matchesSearch =
       task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      task.description?.toLowerCase().includes(searchQuery.toLowerCase())
+      task.description?.toLowerCase().includes(searchQuery.toLowerCase());
 
-    if (filter === "pending") return matchesSearch && !task.completed
-    if (filter === "completed") return matchesSearch && task.completed
-    return matchesSearch
-  })
+    if (filter === "pending")
+      return matchesSearch && task.status !== "COMPLETED";
+    if (filter === "completed")
+      return matchesSearch && task.status === "COMPLETED";
+    return matchesSearch;
+  });
 
   const stats = {
+    today: tasks.length, // Just placeholder if needed, or keeping total
     total: tasks.length,
-    completed: tasks.filter((t) => t.completed).length,
-    pending: tasks.filter((t) => !t.completed).length,
-    highPriority: tasks.filter((t) => t.priority === "high" && !t.completed).length,
-  }
+    completed: tasks.filter((t) => t.status === "COMPLETED").length,
+    pending: tasks.filter((t) => t.status !== "COMPLETED").length,
+    highPriority: tasks.filter(
+      (t) => t.priority === "high" && t.status !== "COMPLETED"
+    ).length,
+  };
 
   const handleEdit = (task: Task) => {
-    setEditingTask(task)
-    setIsDialogOpen(true)
-  }
+    setEditingTask(task);
+    setIsDialogOpen(true);
+  };
 
   const handleCloseDialog = () => {
-    setIsDialogOpen(false)
-    setEditingTask(null)
-  }
+    setIsDialogOpen(false);
+    setEditingTask(null);
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -61,17 +81,26 @@ export function DashboardContent() {
             <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
               <CheckCircle2 className="w-5 h-5 text-primary-foreground" />
             </div>
-            <span className="font-semibold text-lg text-foreground">TaskFlow</span>
+            <span className="font-semibold text-lg text-foreground">
+              TaskFlow
+            </span>
           </div>
 
           <div className="flex items-center gap-4">
             <div className="hidden sm:flex items-center gap-2 text-sm">
               <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
-                <span className="text-xs font-medium text-primary">{user?.name?.charAt(0).toUpperCase()}</span>
+                <span className="text-xs font-medium text-primary">
+                  {user?.name?.charAt(0).toUpperCase()}
+                </span>
               </div>
               <span className="text-muted-foreground">{user?.name}</span>
             </div>
-            <Button variant="ghost" size="icon" onClick={logout} title="Cerrar sesión">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={logout}
+              title="Cerrar sesión"
+            >
               <LogOut className="w-4 h-4" />
             </Button>
           </div>
@@ -81,8 +110,12 @@ export function DashboardContent() {
       <main className="container mx-auto px-4 py-8">
         {/* Welcome section */}
         <div className="mb-8">
-          <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">¡Hola, {user?.name?.split(" ")[0]}!</h1>
-          <p className="text-muted-foreground">Gestiona tus tareas y mantente productivo</p>
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
+            ¡Hola, {user?.name?.split(" ")[0]}!
+          </h1>
+          <p className="text-muted-foreground">
+            Gestiona tus tareas y mantente productivo
+          </p>
         </div>
 
         {/* Stats cards */}
@@ -180,7 +213,10 @@ export function DashboardContent() {
             <span className="text-sm text-muted-foreground">Filtro:</span>
             <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">
               {filter === "pending" ? "Pendientes" : "Completadas"}
-              <button onClick={() => setFilter("all")} className="hover:bg-primary/20 rounded-full p-0.5">
+              <button
+                onClick={() => setFilter("all")}
+                className="hover:bg-primary/20 rounded-full p-0.5"
+              >
                 ×
               </button>
             </span>
@@ -201,7 +237,9 @@ export function DashboardContent() {
               {searchQuery ? "No se encontraron tareas" : "No hay tareas"}
             </h3>
             <p className="text-muted-foreground mb-4">
-              {searchQuery ? "Intenta con otros términos de búsqueda" : "Crea tu primera tarea para comenzar"}
+              {searchQuery
+                ? "Intenta con otros términos de búsqueda"
+                : "Crea tu primera tarea para comenzar"}
             </p>
             {!searchQuery && (
               <Button onClick={() => setIsDialogOpen(true)}>
@@ -211,7 +249,13 @@ export function DashboardContent() {
             )}
           </div>
         ) : (
-          <div className={view === "grid" ? "grid sm:grid-cols-2 lg:grid-cols-3 gap-4" : "space-y-3"}>
+          <div
+            className={
+              view === "grid"
+                ? "grid sm:grid-cols-2 lg:grid-cols-3 gap-4"
+                : "space-y-3"
+            }
+          >
             {filteredTasks.map((task) => (
               <TaskCard
                 key={task.id}
@@ -227,9 +271,13 @@ export function DashboardContent() {
       </main>
 
       {/* Task dialog */}
-      <TaskDialog open={isDialogOpen} onClose={handleCloseDialog} task={editingTask} />
+      <TaskDialog
+        open={isDialogOpen}
+        onClose={handleCloseDialog}
+        task={editingTask}
+      />
     </div>
-  )
+  );
 }
 
 function StatCard({
@@ -238,16 +286,20 @@ function StatCard({
   value,
   color,
 }: {
-  icon: React.ReactNode
-  label: string
-  value: number
-  color: string
+  icon: React.ReactNode;
+  label: string;
+  value: number;
+  color: string;
 }) {
   return (
     <div className="p-4 rounded-xl bg-card border border-border/50">
-      <div className={`w-10 h-10 rounded-lg ${color} flex items-center justify-center mb-3`}>{icon}</div>
+      <div
+        className={`w-10 h-10 rounded-lg ${color} flex items-center justify-center mb-3`}
+      >
+        {icon}
+      </div>
       <p className="text-2xl font-bold text-foreground">{value}</p>
       <p className="text-sm text-muted-foreground">{label}</p>
     </div>
-  )
+  );
 }
