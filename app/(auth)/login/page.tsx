@@ -182,14 +182,6 @@ export default function LoginPage() {
                   )}
                 </Button>
               </form>
-
-              <div className="mt-6 p-4 rounded-lg bg-muted/50 border border-border/50">
-                <p className="text-xs text-muted-foreground mb-2">
-                  Credenciales de prueba:
-                </p>
-                <p className="text-sm font-mono">demo@taskflow.com</p>
-                <p className="text-sm font-mono">demo123</p>
-              </div>
             </CardContent>
             <CardFooter className="flex flex-col space-y-4">
               <div className="text-center text-sm text-muted-foreground">
